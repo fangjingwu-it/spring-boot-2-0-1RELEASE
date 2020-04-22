@@ -96,13 +96,21 @@ import org.springframework.util.StringUtils;
  * @author Andy Wilkinson
  * @author Eddú Meléndez
  * @author Madhura Bhave
+ *
+ * 这个监听器，非常核心（在Spring Boot第二次进行事件发布时，发布），要用来处理项目配置。项目中的 properties 和 yml文件都是其内部类所加载
  */
-public class ConfigFileApplicationListener
-		implements EnvironmentPostProcessor, SmartApplicationListener, Ordered {
+public class ConfigFileApplicationListener implements EnvironmentPostProcessor, SmartApplicationListener, Ordered {
 
 	private static final String DEFAULT_PROPERTIES = "defaultProperties";
 
-	// Note the order is from least to most specific (last one wins)
+	/*
+	 * Note the order is from least to most specific (last one wins)
+	 *
+	 * classpath:/ 类路径目录下
+	 * classpath:/config/ 类路径的config目录下
+	 * file:./ 当前项目路径下
+	 * file:./config/ 当前项目路径下的config目录下
+	 */
 	private static final String DEFAULT_SEARCH_LOCATIONS = "classpath:/,classpath:/config/,file:./,file:./config/";
 
 	private static final String DEFAULT_NAMES = "application";
@@ -191,8 +199,7 @@ public class ConfigFileApplicationListener
 	}
 
 	@Override
-	public void postProcessEnvironment(ConfigurableEnvironment environment,
-			SpringApplication application) {
+	public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
 		addPropertySources(environment, application.getResourceLoader());
 	}
 
@@ -207,8 +214,7 @@ public class ConfigFileApplicationListener
 	 * @param resourceLoader the resource loader
 	 * @see #addPostProcessors(ConfigurableApplicationContext)
 	 */
-	protected void addPropertySources(ConfigurableEnvironment environment,
-			ResourceLoader resourceLoader) {
+	protected void addPropertySources(ConfigurableEnvironment environment, ResourceLoader resourceLoader) {
 		RandomValuePropertySource.addToEnvironment(environment);
 		new Loader(environment, resourceLoader).load();
 	}
@@ -314,12 +320,15 @@ public class ConfigFileApplicationListener
 
 		Loader(ConfigurableEnvironment environment, ResourceLoader resourceLoader) {
 			this.environment = environment;
-			this.resourceLoader = resourceLoader == null ? new DefaultResourceLoader()
-					: resourceLoader;
-			this.propertySourceLoaders = SpringFactoriesLoader.loadFactories(
-					PropertySourceLoader.class, getClass().getClassLoader());
+			this.resourceLoader = resourceLoader == null ? new DefaultResourceLoader() : resourceLoader;
+
+			// 这里会加载，初始化，排序我们自定义的PropertySourceLoader实现类（需要到META-INF/spring.factories下线配置一下）
+			this.propertySourceLoaders = SpringFactoriesLoader.loadFactories(PropertySourceLoader.class, getClass().getClassLoader());
 		}
 
+		/**
+		 *
+		 */
 		public void load() {
 			this.profiles = Collections.asLifoQueue(new LinkedList<Profile>());
 			this.processedProfiles = new LinkedList<>();

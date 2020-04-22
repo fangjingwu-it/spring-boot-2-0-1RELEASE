@@ -28,9 +28,12 @@ import org.springframework.util.ReflectionUtils;
 
 /**
  * A collection of {@link SpringApplicationRunListener}.
- * 该类用于监听SpringBoot启动过程中各个阶段需要做的事情：程序准备启动 ->准备环境 ->应用上下文ApplicationContext准备加载 ->程序启动完成
+ * 该封装了SpringBoot启动过程中各个阶段需要做的事情：程序准备启动 ->准备环境 ->应用上下文ApplicationContext准备加载 ->程序启动完成
  *
  * @author Phillip Webb
+ *
+ * springBoot整体框架就是通过该监听器org.springframework.boot.SpringApplicationRunListeners，来触发上下文监听器。
+ * 通过上下文监听器来完成整体逻辑，比如加载配置文件，加载配置类，初始化日志环境等。
  */
 class SpringApplicationRunListeners {
 
@@ -38,14 +41,13 @@ class SpringApplicationRunListeners {
 
 	private final List<SpringApplicationRunListener> listeners;
 
-	SpringApplicationRunListeners(Log log,
-			Collection<? extends SpringApplicationRunListener> listeners) {
+	SpringApplicationRunListeners(Log log, Collection<? extends SpringApplicationRunListener> listeners) {
 		this.log = log;
 		this.listeners = new ArrayList<>(listeners);
 	}
 
 	/**
-	 * 启动阶段：通知监听SpringBoot启动阶段的监听器
+	 * SpringBoot刚启动，发布的事件
 	 */
 	public void starting() {
 		for (SpringApplicationRunListener listener : this.listeners) {
@@ -53,6 +55,9 @@ class SpringApplicationRunListeners {
 		}
 	}
 
+	/**
+	 * Environment环境准备完毕后，发布的事件
+	 */
 	public void environmentPrepared(ConfigurableEnvironment environment) {
 		for (SpringApplicationRunListener listener : this.listeners) {
 			listener.environmentPrepared(environment);

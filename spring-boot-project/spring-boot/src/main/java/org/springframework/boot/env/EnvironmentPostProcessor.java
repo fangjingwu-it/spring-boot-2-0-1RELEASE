@@ -36,6 +36,18 @@ import org.springframework.core.env.Environment;
  * @author Andy Wilkinson
  * @author Stephane Nicoll
  * @since 1.3.0
+ *
+ * 扩展点之一：EnvironmentPostProcessor 定制一些环境设置在应用的上下文之前被刷新。（意思就是在spring上下文构建之前可以设置一些系统配置）
+ *    注意: 其实现类必须要在META-INF/spring.factories文件中去注册，并且注册的是全类名。
+ * 將自己的配置文件通过该类的postProcessEnvironment方法，加载进来：
+ * 例如下（方法中的编码）：
+ *   <pre class="code">
+ *       InputStream inputStream = new FileInputStream("/Users/naeshihiroshi/study/studySummarize/SpringBoot/springboot.properties");
+ *       Properties properties = new Properties();
+ *       properties.load(inputStream);
+ *       PropertiesPropertySource propertiesPropertySource = new PropertiesPropertySource("my",properties);
+ *       environment.getPropertySources().addLast(propertiesPropertySource);
+ *   </>
  */
 @FunctionalInterface
 public interface EnvironmentPostProcessor {
@@ -45,7 +57,6 @@ public interface EnvironmentPostProcessor {
 	 * @param environment the environment to post-process
 	 * @param application the application to which the environment belongs
 	 */
-	void postProcessEnvironment(ConfigurableEnvironment environment,
-			SpringApplication application);
+	void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application);
 
 }

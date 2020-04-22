@@ -26,8 +26,8 @@ import org.springframework.core.env.StandardEnvironment;
  *
  * @author Phillip Webb
  * @since 2.0.0
+ *
+ * 响应式web程序 的环境对象
  */
-public class StandardReactiveWebEnvironment extends StandardEnvironment
-		implements ConfigurableReactiveWebEnvironment {
-
+public class StandardReactiveWebEnvironment extends StandardEnvironment implements ConfigurableReactiveWebEnvironment {
 }

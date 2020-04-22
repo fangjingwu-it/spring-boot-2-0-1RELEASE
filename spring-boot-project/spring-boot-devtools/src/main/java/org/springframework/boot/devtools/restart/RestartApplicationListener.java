@@ -41,16 +41,23 @@ public class RestartApplicationListener
 
 	@Override
 	public void onApplicationEvent(ApplicationEvent event) {
+
+		// 在springboot启动的时候，发布的事件
 		if (event instanceof ApplicationStartingEvent) {
 			onApplicationStartingEvent((ApplicationStartingEvent) event);
 		}
+
+		// 在springboot的环境容器设置完成的时候，发布的事件
 		if (event instanceof ApplicationPreparedEvent) {
 			onApplicationPreparedEvent((ApplicationPreparedEvent) event);
 		}
+
+		// 在springboot容器的准备就绪 或 启动失败的时候，发布的事件
 		if (event instanceof ApplicationReadyEvent
 				|| event instanceof ApplicationFailedEvent) {
 			Restarter.getInstance().finish();
 		}
+
 		if (event instanceof ApplicationFailedEvent) {
 			onApplicationFailedEvent((ApplicationFailedEvent) event);
 		}

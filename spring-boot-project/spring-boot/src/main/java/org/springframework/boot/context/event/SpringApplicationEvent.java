@@ -23,6 +23,8 @@ import org.springframework.context.ApplicationEvent;
  * Base class for {@link ApplicationEvent} related to a {@link SpringApplication}.
  *
  * @author Phillip Webb
+ *
+ * SpringApplicationEvent：Spring Boot 应用程序各个阶段声明事件的父类
  */
 @SuppressWarnings("serial")
 public abstract class SpringApplicationEvent extends ApplicationEvent {

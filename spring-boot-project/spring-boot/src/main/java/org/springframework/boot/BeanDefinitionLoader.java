@@ -131,29 +131,42 @@ class BeanDefinitionLoader {
 
 	private int load(Object source) {
 		Assert.notNull(source, "Source must not be null");
+
+		// 如果是Class类型，启用注解类型
 		if (source instanceof Class<?>) {
 			return load((Class<?>) source);
 		}
+
+		// 如果是resource类型，启用xml解析
 		if (source instanceof Resource) {
 			return load((Resource) source);
 		}
+
+		// 如果是package类型，启用扫描包，例如：@ComponentScan
 		if (source instanceof Package) {
 			return load((Package) source);
 		}
+
+		//如果是字符串类型，直接加载
 		if (source instanceof CharSequence) {
 			return load((CharSequence) source);
 		}
 		throw new IllegalArgumentException("Invalid source type " + source.getClass());
 	}
 
+	/**
+	 *
+	 * @param source
+	 * @return
+	 */
 	private int load(Class<?> source) {
-		if (isGroovyPresent()
-				&& GroovyBeanDefinitionSource.class.isAssignableFrom(source)) {
+		if (isGroovyPresent() && GroovyBeanDefinitionSource.class.isAssignableFrom(source)) {
 			// Any GroovyLoaders added in beans{} DSL can contribute beans here
-			GroovyBeanDefinitionSource loader = BeanUtils.instantiateClass(source,
-					GroovyBeanDefinitionSource.class);
+			GroovyBeanDefinitionSource loader = BeanUtils.instantiateClass(source, GroovyBeanDefinitionSource.class);
 			load(loader);
 		}
+
+		// 以注解的方式，将启动类bean信息存入beanDefinitionMap
 		if (isComponent(source)) {
 			this.annotatedReader.register(source);
 			return 1;
@@ -279,9 +292,14 @@ class BeanDefinitionLoader {
 		return Package.getPackage(source.toString());
 	}
 
+	/**
+	 * 判断启动类中是否包含@component注解
+	 * @param type
+	 * @return
+	 */
 	private boolean isComponent(Class<?> type) {
-		// This has to be a bit of a guess. The only way to be sure that this type is
-		// eligible is to make a bean definition out of it and try to instantiate it.
+
+		// AnnotationUtils.findAnnotation 判断是否包含该注解是通过递归实现，注解上的注解若包含指定类型也是可以的。
 		if (AnnotationUtils.findAnnotation(type, Component.class) != null) {
 			return true;
 		}

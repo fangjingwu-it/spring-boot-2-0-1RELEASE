@@ -41,6 +41,8 @@ import org.springframework.util.ErrorHandler;
  * @author Stephane Nicoll
  * @author Andy Wilkinson
  *
+ * EventPublishingRunListener该监听器是Spring Boot 框架最早执行的监听器
+ *
  * 该类用于监听SpringBoot启动过程中各个阶段需要做的事情：程序准备启动 ->准备环境 ->应用上下文ApplicationContext准备加载 ->程序启动完成
  * 其主要功能是：通知各个阶段的listener处理对应阶段的事件
  */
@@ -56,9 +58,16 @@ public class EventPublishingRunListener implements SpringApplicationRunListener,
 	 */
 	private final SimpleApplicationEventMulticaster initialMulticaster;
 
+	/**
+	 * 这里会创建默认全局的事件发布工具类SimpleApplicationEventMulticaster
+	 * @param application
+	 * @param args
+	 */
 	public EventPublishingRunListener(SpringApplication application, String[] args) {
 		this.application = application;
 		this.args = args;
+
+		// spring事件机制通用的事件发布类
 		this.initialMulticaster = new SimpleApplicationEventMulticaster();
 		for (ApplicationListener<?> listener : application.getListeners()) {
 			this.initialMulticaster.addApplicationListener(listener);
@@ -77,6 +86,7 @@ public class EventPublishingRunListener implements SpringApplicationRunListener,
 	 */
 	@Override
 	public void starting() {
+		// 这里是发布 application 启动是的事件 ApplicationStartingEvent
 		this.initialMulticaster.multicastEvent(
 				new ApplicationStartingEvent(this.application, this.args));
 	}
